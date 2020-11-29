@@ -7,6 +7,7 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Enemies/DefaultEnemy.h"
+#include "GameFramework/Pawn.h"
 
 
 /*Set defaults*/
@@ -83,18 +84,18 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
     }
 }
 
-void AEnemyAIController::SetSeenTarget(APawn* Pawn)
+void AEnemyAIController::SetSeenTarget(APawn* aPawn)
 {
     /*Registers the Pawn that the AI has seen in the blackboard*/
-    if (BlackboardComp)
+    if (this->BlackboardComp)
     {
-        BlackboardComp->SetValueAsObject(TargetKey, Pawn);
+        BlackboardComp->SetValueAsObject(TargetKey, aPawn);
     }
 }
 
 AActor* AEnemyAIController::GetCurrentWaypoint() 
 {
-	if (BlackboardComp) 
+	if (this->BlackboardComp)
 	{
 		return Cast<AActor>(BlackboardComp->GetValueAsObject(CurrentWaypointKey));
 	}

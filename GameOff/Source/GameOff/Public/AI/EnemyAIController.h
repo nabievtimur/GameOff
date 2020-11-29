@@ -7,9 +7,9 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "EnvironmentQuery/EnvQuery.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Enemies/DefaultEnemy.h"
 #include "EnemyAIController.generated.h"
 
 /**
@@ -31,9 +31,21 @@ private:
 	/* A Sight Sense config for our AI */
 	UAISenseConfig_Sight* Sight;
 
+	/*Controlled pawn*/
+	ADefaultEnemy* EnemyPawn;
+
+	/* */
+	int PlayerLostTimer = 0;
+
+	bool bCanSeePlayer = false;
+
+	bool bIsHiding = false;
+
+	bool LostPlayer = false;
+
 	/* The function that fires when the perception of our AI gets updated */
 	UFUNCTION()
-	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
+	void OnTargetPerceptionUpdated(AActor* SensedActor, FAIStimulus stimulus);
 
 public:
 
@@ -44,6 +56,8 @@ public:
 	virtual void OnPossess(class APawn* InPawn) override;
 
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	//virtual void onUnPosses() override;
 
@@ -68,6 +82,21 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
 	FName LocationToGoKey = "LocationToGo";	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
+	FName LastSeenPlayerKey = "LastSeenPlayer";
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
+	FName CanSeePlayerKey = "CanSeePlayer";
+
+	UPROPERTY(Category="AI", EditAnywhere)
+	int LostTime = 20;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cover")
+	FName HidingKey = "Hiding";
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cover")
+	FName InCoverKey = "InCover";
 
 	/* The Component which is used for the "seeing" player */
 	UPROPERTY(VisibleAnywhere, Category="AI")

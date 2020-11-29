@@ -3,6 +3,9 @@
 
 #include "AI/EnemyAIController.h"
 #include "Navigation/CrowdFollowingComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Perception/AIPerceptionTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Enemies/DefaultEnemy.h"
 #include "GameFramework/Pawn.h"
 
@@ -38,7 +41,27 @@ void AEnemyAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    PerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
+    PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
+}
+
+void AEnemyAIController::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    bIsHiding = BlackboardComp->GetValueAsBool(HidingKey);
+    if (!bCanSeePlayer && !bIsHiding && !LostPlayer)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("LostTimer inc"));
+        PlayerLostTimer++;
+    }
+
+    if (PlayerLostTimer == LostTime)
+    {
+        BlackboardComp->SetValueAsObject(TargetKey, NULL);
+        BlackboardComp->SetValueAsBool(InCoverKey, false);
+        PlayerLostTimer = 0;
+        LostPlayer = true;
+    }
 }
 
 void AEnemyAIController::OnPossess(APawn* InPawn) 
@@ -49,6 +72,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
     initialize it's blackboard and start it's corresponding behavior tree*/
 
 	ADefaultEnemy* AICharacter = Cast<ADefaultEnemy>(InPawn);
+    this->EnemyPawn = AICharacter;
 
 	if (AICharacter)
     {
@@ -78,26 +102,34 @@ AActor* AEnemyAIController::GetCurrentWaypoint()
 	return nullptr;
 }
     
-void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
+void AEnemyAIController::OnTargetPerceptionUpdated(AActor* SensedActor, FAIStimulus Stimulus)
 {
-    /* If our character exists inside the UpdatedActors array, register him
-    to our blackboard component */
-    
-    GLog->Log("Updating perception");
-    for (AActor* Actor : UpdatedActors)
+    AActor* PlayerActor = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (SensedActor == PlayerActor)
     {
-        if (!GetSeeingPawn())
+        if (Stimulus.WasSuccessfullySensed())
         {
-            BlackboardComp->SetValueAsObject(TargetKey, Actor);
-            GLog->Log("Set target");
-
-            return;
+            UE_LOG(LogTemp, Warning, TEXT("Sensed player"));
+            bCanSeePlayer = true;
+            BlackboardComp->SetValueAsBool(CanSeePlayerKey, true);
+            BlackboardComp->SetValueAsObject(TargetKey, SensedActor);
+            if (BlackboardComp->GetValueAsBool(HidingKey))
+            {
+                GLog->Log("Set player while hiding");
+                BlackboardComp->SetValueAsBool(InCoverKey, false);
+                BlackboardComp->SetValueAsBool(HidingKey, false);
+            }
+            LostPlayer = false;
+        } 
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Unsensed player"));
+            bCanSeePlayer = false;
+            BlackboardComp->SetValueAsBool(CanSeePlayerKey, false);
+            BlackboardComp->SetValueAsVector(LastSeenPlayerKey, SensedActor->GetActorLocation());
+            PlayerLostTimer = 0;
         }
     }
- 
-    /*The character doesn't exist in our updated actors - so make sure
-    to delete any previous reference of him from the blackboard */
-    BlackboardComp->SetValueAsObject(TargetKey, nullptr);
 }
 
 AActor* AEnemyAIController::GetSeeingPawn()

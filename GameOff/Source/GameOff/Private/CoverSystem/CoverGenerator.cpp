@@ -170,6 +170,8 @@ bool ACoverGenerator::IsProvidingCover(FCoverData& DataOut, const FVector& Segme
 	const FVector TraceEndPos = SegmentPoint + TraceDir * TraceTestLength; 
 	const FVector TraceEndNeg = SegmentPoint - TraceDir * TraceTestLength; 
 	const FVector GroundOffsetV(0.0f, 0.0f, GroundOffset);
+	const FVector StandingOffsetV(0.0f, 0.0f, StandingOffset);
+	const FVector CrouchOffsetV(0.0f, 0.0f, CrouchOffset);
 
 	FHitResult HitResult;
 	FCollisionQueryParams CollQueryParams;
@@ -177,20 +179,29 @@ bool ACoverGenerator::IsProvidingCover(FCoverData& DataOut, const FVector& Segme
 
 	DataOut.Location = SegmentPoint;
 
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + GroundOffsetV, TraceEndPos + GroundOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams);
+	bool bSuccess = false;
 
-	if (!bSuccess)
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + GroundOffsetV, TraceEndPos + GroundOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams))
 	{
-		bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + GroundOffsetV, TraceEndNeg + GroundOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams);
+		DataOut.PerpToWall = TraceDir * TraceTestLength;
+		DataOut.PerpToWall.Normalize();
+		/*check if we can fire standing*/
+		if (!GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + CrouchOffsetV, TraceEndPos + CrouchOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams))
+		{
+			bSuccess = true;
+		}
+	}		
+	else if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + GroundOffsetV, TraceEndNeg + GroundOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams))
+	{
 		DataOut.PerpToWall = -(TraceDir * TraceTestLength);
 		DataOut.PerpToWall.Normalize();
-
+		if (!GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart + CrouchOffsetV, TraceEndNeg + CrouchOffsetV, ECollisionChannel::ECC_GameTraceChannel1, CollQueryParams))
+		{
+			bSuccess = true;
+		}
 		//DrawDebugDirectionalArrow(GetWorld(), DataOut.Location, DataOut.Location + DataOut.PerpToWall, 100.0f, FColor::Purple, true, -1.0f, 0, 2.0f);
-		return bSuccess;
 	}
 
-	DataOut.PerpToWall = TraceDir * TraceTestLength;
-	DataOut.PerpToWall.Normalize();
 
 	return bSuccess;
 }

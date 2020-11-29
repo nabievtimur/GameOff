@@ -30,10 +30,8 @@ EBTNodeResult::Type UTakeCover::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 		FCoverPoint NewCoverPoint;
 		NewCoverPoint.Init(NewCoverLoc);
 		CoverGenerator->OccupyCover(NewCoverPoint);
-		BotController->TakeCover();
 
 		Blackboard->SetValueAsVector(CurrentCoverKey.SelectedKeyName, NewCoverLoc);
-		Blackboard->SetValueAsBool(InCoverKey.SelectedKeyName, true);
 
 		return EBTNodeResult::Succeeded;
 	}

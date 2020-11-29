@@ -8,7 +8,7 @@
 #include "NavMesh/RecastNavMesh.h"
 #include "UObject/UObjectGlobals.h"
 #include "CoverSystem/CoverPoint.h"
-#include "CoverSystem/CoverOctree.h"
+#include "CoverSystem/CoverOctree.h"	
 #include "CoverGenerator.generated.h"
 
 
@@ -41,7 +41,6 @@ public:
 
 	/*Get coverpoints in area bounds*/
 	void GetCoverWithinBounds(const FBoxCenterAndExtent& BoundsIn, TArray<FCoverPoint>& OutPoints);
-
 	void GetPointsWithinBounds(const FBoxCenterAndExtent& BoundsIn, TArray<FNavLocation>& OutPoints);
 	
 	/*Release occupied cover*/
@@ -71,6 +70,12 @@ public:
 
 	UPROPERTY(Category = "Segment", EditAnywhere)
 	float GroundOffset = 20.0f;	
+
+	UPROPERTY(Category = "Actor", EditAnywhere)
+	float CrouchOffset = 80.0f;
+
+	UPROPERTY(Category = "Actor", EditAnywhere)
+	float StandingOffset = 160.0f;	
 
 	UPROPERTY(Category = "Segment", EditAnywhere)
 	float TraceTestLength = 60.0f;

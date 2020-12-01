@@ -89,6 +89,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
 	FName CanSeePlayerKey = "CanSeePlayer";
 
+	UPROPERTY(Category="Perception", EditAnywhere)
+	float SightRadius = 3000.0f;
+
+	UPROPERTY(Category="Perception", EditAnywhere)
+	float LoseRadius = 5000.0f;
+
+	UPROPERTY(Category="Perception", EditAnywhere)
+	float VisionAngleDegrees = 130.0f;
+
 	UPROPERTY(Category="AI", EditAnywhere)
 	int LostTime = 20;
 

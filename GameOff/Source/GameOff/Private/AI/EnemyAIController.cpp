@@ -24,9 +24,9 @@ AEnemyAIController::AEnemyAIController(const FObjectInitializer& ObjectInitializ
     //Create a Sight Sense
     Sight = CreateDefaultSubobject<UAISenseConfig_Sight>(FName("Sight Config"));
  
-    Sight->SightRadius = 1000.f;
-    Sight->LoseSightRadius = 1500.f;
-    Sight->PeripheralVisionAngleDegrees = 130.f;
+    Sight->SightRadius = 2000.0f;
+    Sight->LoseSightRadius = 2000.0f;
+    Sight->PeripheralVisionAngleDegrees = 135.0f;
  
     //Tell the sight sense to detect everything
     Sight->DetectionByAffiliation.bDetectEnemies = true;

@@ -107,6 +107,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cover")
 	FName InCoverKey = "InCover";
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cover")
+	FName WantsFire = "WantFire";
+
 	/* The Component which is used for the "seeing" player */
 	UPROPERTY(VisibleAnywhere, Category="AI")
     class UAIPerceptionComponent* PerceptionComp;

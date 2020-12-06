@@ -29,5 +29,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector InCoverKey;
 
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector NeedCoverKey;
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

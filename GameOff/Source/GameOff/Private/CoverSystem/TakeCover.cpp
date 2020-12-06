@@ -32,6 +32,7 @@ EBTNodeResult::Type UTakeCover::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 		CoverGenerator->OccupyCover(NewCoverPoint);
 
 		Blackboard->SetValueAsVector(CurrentCoverKey.SelectedKeyName, NewCoverLoc);
+		Blackboard->SetValueAsBool(NeedCoverKey.SelectedKeyName, false);
 
 		return EBTNodeResult::Succeeded;
 	}

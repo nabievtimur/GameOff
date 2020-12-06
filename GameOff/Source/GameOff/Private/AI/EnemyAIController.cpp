@@ -58,7 +58,6 @@ void AEnemyAIController::Tick(float DeltaSeconds)
     if (PlayerLostTimer == LostTime)
     {
         BlackboardComp->SetValueAsObject(TargetKey, NULL);
-        BlackboardComp->SetValueAsBool(InCoverKey, false);
         PlayerLostTimer = 0;
         LostPlayer = true;
     }
@@ -109,10 +108,11 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* SensedActor, FAIStimu
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-            UE_LOG(LogTemp, Warning, TEXT("Sensed player"));
+            UE_LOG(LogTemp, Warning, TEXT("Wants fire"));
             bCanSeePlayer = true;
             BlackboardComp->SetValueAsBool(CanSeePlayerKey, true);
             BlackboardComp->SetValueAsObject(TargetKey, SensedActor);
+            BlackboardComp->SetValueAsBool(WantsFire, true);
             if (BlackboardComp->GetValueAsBool(HidingKey))
             {
                 GLog->Log("Set player while hiding");
@@ -123,7 +123,8 @@ void AEnemyAIController::OnTargetPerceptionUpdated(AActor* SensedActor, FAIStimu
         } 
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT("Unsensed player"));
+            BlackboardComp->SetValueAsBool(WantsFire, false);
+            UE_LOG(LogTemp, Warning, TEXT("Not wants fire"));
             bCanSeePlayer = false;
             BlackboardComp->SetValueAsBool(CanSeePlayerKey, false);
             BlackboardComp->SetValueAsVector(LastSeenPlayerKey, SensedActor->GetActorLocation());
